@@ -539,3 +539,24 @@ class TestPostgresStorageInt(CoverageModelUnitTestCase):
         cov.set_parameter_values(data_dict)
         self.assertFalse(cov.is_empty())
         self.assertTrue(cov.has_parameter_data())
+
+    def test_sparse_arrays(self):
+        sparse_array = ParameterContext('sparse_array', param_type=SparseConstantType())
+        cov = _make_cov(self.working_dir, ['quantity',sparse_array], nt=0)
+
+        import time
+        ntp_now = time.time() + 2208988800
+
+        data_dict = {
+            'sparse_array' : ConstantOverTime('sparse_array', [1.03, 0.02], time_start=ntp_now)
+        }
+        cov.set_parameter_values(data_dict)
+
+        data_dict = {
+            'quantity' : NumpyParameterData('quantity', np.arange(20)),
+            'time' : NumpyParameterData('time', np.arange(ntp_now, ntp_now + 20))
+        }
+        cov.set_parameter_values(data_dict)
+
+        cov.get_parameter_values().get_data()
+
